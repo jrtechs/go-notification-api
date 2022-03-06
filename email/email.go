@@ -65,9 +65,7 @@ func SendEmail(destinationEmail string, subject string, message string) error {
 	// Settings for SMTP server
 	d := gomail.NewDialer(smptServer, 587, fromEmail, emailPassword)
 
-	// This is only needed when SSL/TLS certificate is not valid on server.
-	// In production this should be set to false.
-	d.TLSConfig = &tls.Config{InsecureSkipVerify: false}
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	// Now send E-Mail
 	if err := d.DialAndSend(m); err != nil {

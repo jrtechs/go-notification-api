@@ -26,14 +26,15 @@ func sendEmail(res http.ResponseWriter, req *http.Request) {
 	var postData EmailRequest
 	err := json.NewDecoder(req.Body).Decode(&postData)
 	if err != nil {
-		panic(err)
+		conf.Logger.Print("Error decoding response", err)
+		return
 	}
 
 	if postData.Token == ValidToken {
 		conf.Logger.Println("Token accepted on request")
 
 		if postData.Email != "" && postData.Message != "" && postData.Subject != "" {
-			conf.Logger.Printf("Sending email with subject: '%s' and message: '%s'", postData.Subject, postData.Message)
+			//conf.Logger.Printf("Sending email with subject: '%s' and message: '%s'", postData.Subject, postData.Message)
 			email.SendEmail(postData.Email, postData.Subject, postData.Message)
 		}
 	} else {

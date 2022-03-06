@@ -1,6 +1,6 @@
 module github.com/jrtechs/go-notification-api
 
-go 1.13
+go 1.11
 
 require (
 	github.com/joho/godotenv v1.4.0
