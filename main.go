@@ -14,6 +14,8 @@ import (
 
 var ValidToken string
 
+var Debug bool = false
+
 type EmailRequest struct {
 	Token   string
 	Message string
@@ -27,18 +29,25 @@ func sendEmail(res http.ResponseWriter, req *http.Request) {
 	err := json.NewDecoder(req.Body).Decode(&postData)
 	if err != nil {
 		conf.Logger.Print("Error decoding response", err)
+		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if postData.Token == ValidToken {
 		conf.Logger.Println("Token accepted on request")
-
 		if postData.Email != "" && postData.Message != "" && postData.Subject != "" {
-			//conf.Logger.Printf("Sending email with subject: '%s' and message: '%s'", postData.Subject, postData.Message)
-			email.SendEmail(postData.Email, postData.Subject, postData.Message)
+			if !Debug {
+				emailErr := email.SendEmail(postData.Email, postData.Subject, postData.Message)
+				if emailErr != nil {
+					res.WriteHeader(http.StatusInternalServerError)
+				}
+			} else {
+				conf.Logger.Printf("\nSending email to %s\t\nwith subject: '%s'\t\n and message: '%s'", postData.Email, postData.Subject, postData.Message)
+			}
 		}
 	} else {
 		conf.Logger.Println("Invalid token")
+		res.WriteHeader(http.StatusUnauthorized)
 	}
 }
 
@@ -57,8 +66,6 @@ func main() {
 		conf.Logger.Fatal("Failed to initialize email configuration")
 	}
 
-	//email.SendEmail("Test subject custom", "Test message from golang")
-
 	token, envExists := os.LookupEnv("token")
 	if !envExists {
 		conf.Logger.Panic("Unable to fetch 'token' environment variable")
@@ -69,6 +76,13 @@ func main() {
 	port, envExists := os.LookupEnv("port")
 	if !envExists {
 		conf.Logger.Panic("Unable to fetch 'port' environment variable")
+	}
+
+	debugEnv, envExists := os.LookupEnv("debug")
+	if envExists {
+		if debugEnv == "true" {
+			Debug = true
+		}
 	}
 
 	http.HandleFunc("/sendEmail", sendEmail)
