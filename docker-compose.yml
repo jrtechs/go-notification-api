@@ -1,0 +1,24 @@
+version: "3.5"
+
+networks:
+  proxy-tier:
+    external:
+      name: nginx-proxy
+
+
+# contents of .env file
+#email="email sending from"
+#smtp="smtp.gmail.com"
+#password="app specific password generated"
+#token="big rand string"
+#port=7777
+services:
+  go-alert-api:
+    build: .
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - proxy-tier
+    ports:
+      - "7777:7777"
