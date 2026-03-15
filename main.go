@@ -128,6 +128,10 @@ func contact(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func health(res http.ResponseWriter, req *http.Request) {
+	res.WriteHeader(http.StatusOK)
+}
+
 func main() {
 
 	if err := conf.InitLogger(); err != nil {
@@ -179,6 +183,7 @@ func main() {
 
 	http.HandleFunc("/sendEmail", sendEmail)
 	http.HandleFunc("/contact", contact)
+	http.HandleFunc("/health", health)
 
 	conf.Logger.Print("Starting server on port: ", port)
 	conf.Logger.Fatal(http.ListenAndServe(":"+port, nil))
